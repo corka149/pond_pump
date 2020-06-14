@@ -6,6 +6,8 @@ Sends a message when the pond pump gets active.
 
 Insert SD card and execute the steps:
   * `export MIX_TARGET=rpi0`
+  * `export WLAN_SSID=******`
+  * `export WLAN_PASSWORD=******`
   * `mix firmware`
   * `mix firmware.burn`
 
