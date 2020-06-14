@@ -8,7 +8,7 @@ defmodule PondPump.HeliCarrierClient do
   @default_address "http://localhost:4000"
 
   def sent_status(device, status) do
-    url = endpoint() <> "/v1/device/#{device}/#{status}"
+    url = endpoint() <> "/#{device}/#{status}"
     case HTTPoison.get(url) do
       {:ok, _} ->
         "Changed status of #{device} to #{status}"
