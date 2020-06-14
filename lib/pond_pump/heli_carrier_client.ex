@@ -1,6 +1,6 @@
-defmodule PondPump.HeliCarrierClient do
+defmodule PondPump.PumpLightClient do
   @moduledoc """
-  Talks to the heli carrier server
+  Talks to the pump light.
   """
 
   require Logger

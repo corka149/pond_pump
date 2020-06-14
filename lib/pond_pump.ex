@@ -7,7 +7,7 @@ defmodule PondPump do
 
   require Logger
 
-  alias PondPump.HeliCarrierClient, as: Client
+  alias PondPump.PumpLightClient, as: Client
 
   def start_link(_arg) do
     Task.start_link(__MODULE__, :run, [])
