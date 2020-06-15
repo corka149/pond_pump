@@ -19,7 +19,6 @@ config :pond_pump,
   power_in_pin: 18,
   device_name: "pond_pump_149"
 
-config :heli_carrier,
-  # Must be changed
+config :pump_light,
   address: "http://localhost:4000"
 ``` 
