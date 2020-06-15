@@ -16,7 +16,9 @@ defmodule PondPump.PumpLightClient do
         |> Logger.info()
 
       {:error, _} ->
-        "Status of #{device} could not be change to #{status}"
+        ~s/Status of #{device} could not be change to #{status}!
+        URL: #{url}
+        /
         |> Logger.error()
     end
   end
