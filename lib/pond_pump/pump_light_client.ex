@@ -13,7 +13,7 @@ defmodule PondPump.PumpLightClient do
     case HTTPoison.get(url) do
       {:ok, _} ->
         "Changed status of #{device} to #{status}"
-        |> Logger.info()
+        |> Logger.debug()
 
       {:error, _} ->
         ~s/Status of #{device} could not be change to #{status}!
