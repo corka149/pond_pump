@@ -24,7 +24,7 @@ defmodule PondPump.PumpLightClient do
   end
 
   defp endpoint() do
-    address = Application.get_env(:pump_light, :address, @default_address)
+    address = Application.get_env(:pond_pump, :address, @default_address)
     address <> "/v1/device"
   end
 end
