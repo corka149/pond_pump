@@ -19,7 +19,7 @@ defmodule PondPump do
     case Circuits.GPIO.open(pin, :input) do
       {:ok, gpio} ->
         Logger.info("Start listing on #{pin}")
-        Circuits.GPIO.set_interrupts(gpio, :both)
+        Circuits.GPIO.set_interrupts(gpio, :rising)
         loop_power_check(gpio)
 
       {:error, reason} ->
@@ -31,9 +31,6 @@ defmodule PondPump do
     receive do
       {:circuits_gpio, _pin, _timestamp, 1} ->
         change_status("active")
-        loop_power_check(gpio)
-      {:circuits_gpio, _pin, _timestamp, 0} ->
-        change_status("inactive")
         loop_power_check(gpio)
       {:circuits_gpio, _pin, _timestamp, val} ->
         Logger.warn("Unkown value #{val}")
