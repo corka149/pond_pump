@@ -31,7 +31,7 @@ defmodule PondPump.MixProject do
   def application do
     [
       mod: {PondPump.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :inets]
     ]
   end
 
