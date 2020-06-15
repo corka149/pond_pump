@@ -15,11 +15,13 @@ defmodule PondPump do
 
   def run() do
     pin = Application.get_env(:pond_pump, :power_in_pin, 18)
+
     case Circuits.GPIO.open(pin, :input) do
       {:ok, gpio} ->
         Logger.info("Start listing on #{pin}")
         Circuits.GPIO.set_interrupts(gpio, :rising)
         loop_power_check(gpio)
+
       {:error, reason} ->
         IO.puts(reason)
     end
@@ -43,9 +45,9 @@ defmodule PondPump do
     case Application.get_env(:pond_pump, :device_name) do
       nil ->
         Logger.error("Device has no name. Could not change status!")
+
       device ->
         Client.sent_status(device, status)
     end
   end
-
 end

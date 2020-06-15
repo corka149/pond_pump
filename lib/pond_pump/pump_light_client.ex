@@ -9,10 +9,12 @@ defmodule PondPump.PumpLightClient do
 
   def sent_status(device, status) do
     url = endpoint() <> "/#{device}/#{status}"
+
     case HTTPoison.get(url) do
       {:ok, _} ->
         "Changed status of #{device} to #{status}"
         |> Logger.info()
+
       {:error, _} ->
         "Status of #{device} could not be change to #{status}"
         |> Logger.error()
@@ -23,5 +25,4 @@ defmodule PondPump.PumpLightClient do
     address = Application.get_env(:heli_carrier, :address, @default_address)
     address <> "/v1/device"
   end
-
 end

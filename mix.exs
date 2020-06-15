@@ -60,7 +60,7 @@ defmodule PondPump.MixProject do
       {:nerves_system_rpi3a, "~> 1.11", runtime: false, targets: :rpi3a},
       {:nerves_system_rpi4, "~> 1.11", runtime: false, targets: :rpi4},
       {:nerves_system_bbb, "~> 2.6", runtime: false, targets: :bbb},
-      {:nerves_system_x86_64, "~> 1.11", runtime: false, targets: :x86_64},
+      {:nerves_system_x86_64, "~> 1.11", runtime: false, targets: :x86_64}
     ]
   end
 

@@ -48,21 +48,20 @@ config :vintage_net,
        type: VintageNetEthernet,
        ipv4: %{method: :dhcp}
      }},
-     {"wlan0",
+    {"wlan0",
      %{
        type: VintageNetWiFi,
        vintage_net_wifi: %{
          networks: [
            %{
              key_mgmt: :wpa_psk,
-             ssid: System.get_env("WLAN_SSID"),
-             psk: System.get_env("WLAN_PASSWORD"),
+             ssid: System.fetch_env!("WLAN_SSID"),
+             psk: System.fetch_env!("WLAN_PASSWORD")
            }
          ]
        },
-       ipv4: %{method: :dhcp},
-     }
-   }
+       ipv4: %{method: :dhcp}
+     }}
   ]
 
 config :mdns_lite,
@@ -72,7 +71,7 @@ config :mdns_lite,
   # "nerves.local" for convenience. If more than one Nerves device is on the
   # network, delete "nerves" from the list.
 
-  host: [:hostname, "nerves"],
+  host: [:hostname],
   ttl: 120,
 
   # Advertise the following services over mDNS.
