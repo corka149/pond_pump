@@ -3,7 +3,7 @@ defmodule PondPump.LightDetecor do
   Detect the address of the pump light
   """
 
-  use Agent, restart: :transient
+  use Agent, restart: :permanent
   require Logger
 
   def start_link(_opts) do
