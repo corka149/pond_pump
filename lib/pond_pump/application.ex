@@ -26,6 +26,7 @@ defmodule PondPump.Application do
       # Children that only run on the host
       # Starts a worker by calling: PondPump.Worker.start_link(arg)
       # {PondPump.Worker, arg},
+      {PondPump.LightDetecor, []}
     ]
   end
 
@@ -33,7 +34,8 @@ defmodule PondPump.Application do
     [
       # Children for all targets except host
       # Starts a worker by calling: PondPump.Worker.start_link(arg)
-      {PondPump, []}
+      {PondPump, []},
+      {PondPump.LightDetecor, []}
     ]
   end
 
