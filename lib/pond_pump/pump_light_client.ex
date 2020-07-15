@@ -8,8 +8,8 @@ defmodule PondPump.PumpLightClient do
   def sent_status(device, status) do
     case endpoint() do
       nil -> Logger.info("No host available")
-      host ->
-        url = host <> "/#{device}/#{status}"
+      endpnt ->
+        url = endpnt <> "#{device}/#{status}"
         case HTTPoison.get(url) do
           {:ok, _} ->
             "Changed status of #{device} to #{status}"
@@ -24,10 +24,10 @@ defmodule PondPump.PumpLightClient do
   end
 
   defp endpoint() do
-    case PondPump.LightDetecor.get_light_host() do
+    case PondPump.LightAddressRegister.get_light_host() do
       nil -> nil
       host ->
-        host <> "/v1/device"
+        "http://#{host}:4000/v1/device/"
     end
   end
 end
