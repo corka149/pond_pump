@@ -1,0 +1,4 @@
+venv
+/.tox/
+/src/iot_server.egg-info/
+/.idea/
