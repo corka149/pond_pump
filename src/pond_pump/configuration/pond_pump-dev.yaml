@@ -4,6 +4,6 @@ security:
     password: passwd
 
 device:
-  name: pump_light
+  name: pond_pump_149
   place: garden
   description: observers pump activities
