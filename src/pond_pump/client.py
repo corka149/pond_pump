@@ -29,7 +29,7 @@ async def send_status(event_queue: Queue[str]):
 
             while True:
                 type_ = 'INFO'
-                content = "1"  # TODO consume queue
+                content = await event_queue.get()
                 target = MessageType.BROADCAST.value
                 message = MessageDTO(origin_access_id=access_id, type=type_, content=content, target=target)
 
