@@ -17,7 +17,7 @@ from pond_pump.model.message import MessageDTO, MessageType
 _LOG = logging.getLogger(__name__)
 
 
-async def send_status(event_queue: Queue[str]):
+async def report_status_changes(event_queue: Queue):
     """ Waits for incoming WS message and applies event handler on them. """
     url = __build_device_url() + '/exchange'
 
@@ -52,7 +52,7 @@ async def send_exception(exception: Exception) -> None:
             hostname=socket.gethostname(),
             clazz=exception.__class__.__name__,
             message='Exception on listener side',
-            description=str(exception)
+            stacktrace=str(exception)
         )
 
         async with session.post(url, data=exception_dto.json(), headers=__basic_auth()) as response:
@@ -62,9 +62,9 @@ async def send_exception(exception: Exception) -> None:
 
 async def create_device():
     """ Creates the represented device """
-    name = config.get_config('observers.device.name')
-    place = config.get_config('observers.device.place')
-    description = config.get_config('observers.device.description')
+    name = config.get_config('device.name')
+    place = config.get_config('device.place')
+    description = config.get_config('device.description')
 
     url = config.get_config('iot_server.address') + '/device'
     submittal = DeviceSubmittal(name=name, place=place, description=description)
@@ -84,7 +84,7 @@ async def check_existence() -> bool:
 
 def __build_device_url() -> str:
     url = config.get_config('iot_server.address')
-    device_name = config.get_config('observers.device.name')
+    device_name = config.get_config('device.name')
     return url + f'/device/{device_name}'
 
 

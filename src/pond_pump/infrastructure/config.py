@@ -10,7 +10,7 @@ from typing import Dict, Any
 import yaml
 
 _config_yaml: Dict[str, Any]
-_log = logging.getLogger(__name__)
+_LOG = logging.getLogger(__name__)
 
 
 def init(profile: str):
@@ -27,7 +27,7 @@ def init(profile: str):
             _config_yaml = yaml.load(yaml_file, Loader=yaml.Loader)
     else:
         _config_yaml = dict()
-        _log.debug('No "%s" found.', config_path)
+        _LOG.debug('No "%s" found.', config_path)
 
 
 def get_config(name: str):
@@ -71,4 +71,7 @@ def get_config(name: str):
 
     if val:
         return val
-    raise ValueError(f'"{name} not found')
+
+    msg = f'"{name} not found'
+    _LOG.error(msg)
+    raise ValueError(msg)

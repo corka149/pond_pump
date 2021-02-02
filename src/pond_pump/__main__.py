@@ -16,7 +16,7 @@ async def main():
     config.init(profile)
 
     # Observer the pump and reports its activity
-    event_queue = asyncio.Queue(maxsize=100, loop=asyncio.get_event_loop())
+    event_queue = asyncio.Queue(maxsize=100)
     asyncio.get_event_loop().create_task(observe_power(event_queue), name='observe power')
     await report(event_queue)
 
@@ -29,10 +29,10 @@ async def report(event_queue: asyncio.Queue):
             # Throttle down
             await asyncio.sleep(20)
 
-            exists = client.check_existence()
+            exists = await client.check_existence()
 
             if exists:
-                await client.send_status(event_queue)
+                await client.report_status_changes(event_queue)
             else:
                 await client.create_device()
 
@@ -48,6 +48,7 @@ async def observe_power(event_queue: asyncio.Queue):
             await asyncio.sleep(20)
 
             await event_queue.put("1")  # TODO read the actual value
+            print('Put 1 on queue')
             await asyncio.sleep(5)
         except Exception as ex:
             await client.send_exception(ex)
