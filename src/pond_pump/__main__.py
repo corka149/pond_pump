@@ -5,14 +5,16 @@ import os
 from pond_pump import client
 from pond_pump.infrastructure import config
 
+_LOG = logging.getLogger('pond_pump')
+
 
 async def main():
     """ Main that tires all logic together. """
-    logger = logging.getLogger('pond_pump')
+    logging.basicConfig(level=logging.INFO)
 
     # Preparing config
     profile = os.getenv('IOT_SERVER_PROFILE', 'dev')
-    logger.info('PROFILE: %s', profile)
+    _LOG.info('PROFILE: %s', profile)
     config.init(profile)
 
     # Observer the pump and reports its activity
@@ -37,6 +39,7 @@ async def report(event_queue: asyncio.Queue):
                 await client.create_device()
 
         except Exception as ex:
+            _LOG.exception('Error while report', exc_info=ex)
             await client.send_exception(ex)
 
 
@@ -48,9 +51,10 @@ async def observe_power(event_queue: asyncio.Queue):
             await asyncio.sleep(20)
 
             await event_queue.put("1")  # TODO read the actual value
-            print('Put 1 on queue')
+            _LOG.info('Put 1 on queue')
             await asyncio.sleep(5)
         except Exception as ex:
+            _LOG.exception('Error while observe', exc_info=ex)
             await client.send_exception(ex)
 
 

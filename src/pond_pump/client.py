@@ -1,5 +1,4 @@
 """ Websocket and HTTP/S client for iot_server """
-import asyncio
 import base64
 import logging
 import socket
@@ -7,7 +6,8 @@ from asyncio import Queue
 from datetime import datetime
 from typing import Dict
 
-from aiohttp import ClientSession
+import aiohttp
+from aiohttp import ClientSession, WSMessage
 
 from pond_pump.infrastructure import config
 from pond_pump.model.device import DeviceSubmittal
@@ -26,21 +26,24 @@ async def report_status_changes(event_queue: Queue):
             msg: dict = await websocket.receive_json()
             if 'access_id' in msg:
                 access_id = msg.get('access_id')
+                _LOG.info(f'Got id={access_id}')
 
             while True:
-                type_ = 'INFO'
-                content = await event_queue.get()
+                type_ = 'ACTIVITY'
+                content = await event_queue.get()  # Determines the speed of sending
                 target = MessageType.BROADCAST.value
                 message = MessageDTO(origin_access_id=access_id, type=type_, content=content, target=target)
 
                 await websocket.send_str(message.json())
-                ack = await websocket.receive_str()
-                if 'ACK' == ack:
-                    _LOG.info(f'{datetime.now()}: Server acknowledged')
-                else:
-                    await websocket.close()
+                msg: WSMessage = await websocket.receive()
 
-                await asyncio.sleep(5)
+                if msg.type == aiohttp.WSMsgType.TEXT:
+                    if 'ACK' == msg.data:
+                        _LOG.info(f'{datetime.now()}: Server acknowledged')
+                    else:
+                        await websocket.close()
+                else:
+                    _LOG.error('Unexpected response: type=%s, data=%s', msg.type, msg.data)
 
 
 async def send_exception(exception: Exception) -> None:

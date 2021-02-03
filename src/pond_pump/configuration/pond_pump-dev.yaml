@@ -1,4 +1,4 @@
-def_mode: true
+dev_mode: true
 
 iot_server:
   address: http://localhost:8000
