@@ -8,6 +8,7 @@ from typing import Callable, Dict, Coroutine
 import aiohttp
 from aiohttp import ClientSession, WSMessage, ClientWebSocketResponse
 
+from pond_pump.exception import EndedTooEarlyException
 from pond_pump.infrastructure import config
 from pond_pump.model.message import MessageType, MessageDTO
 
@@ -24,11 +25,10 @@ async def report_status_changes(event_queue: Queue):
     async with ClientSession() as session:
         async with session.ws_connect(url, headers=config.basic_auth()) as websocket:
             msg: dict = await websocket.receive_json()
-            if 'access_id' in msg:
-                access_id = msg.get('access_id')
-                _LOG.info(f'Got id={access_id}')
+            access_id = msg.get('access_id')
+            _LOG.info(f'Got access_id={access_id}')
 
-            while True:
+            while access_id:
                 message = await new_message(access_id, event_queue)
 
                 await websocket.send_str(message.json())
@@ -36,6 +36,8 @@ async def report_status_changes(event_queue: Queue):
 
                 handler_func = handler[msg.type]
                 await handler_func(websocket, msg)
+
+    raise EndedTooEarlyException()
 
 
 async def new_message(access_id: str, event_queue: Queue):
