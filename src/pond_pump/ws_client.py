@@ -13,11 +13,13 @@ from pond_pump.model.message import MessageType, MessageDTO
 
 _LOG = logging.getLogger(__name__)
 
+WebsocketHandler = Dict[int, Callable[[ClientWebSocketResponse, WSMessage], Coroutine[None, None, None]]]
+
 
 async def report_status_changes(event_queue: Queue):
     """ Waits for incoming WS message and applies event handler on them. """
     url = config.build_device_url() + '/exchange'
-    handler = __build_handler()
+    handler: WebsocketHandler = __build_handler()
 
     async with ClientSession() as session:
         async with session.ws_connect(url, headers=config.basic_auth()) as websocket:
@@ -45,7 +47,7 @@ async def report_status_changes(event_queue: Queue):
 
 
 # noinspection PyTypeChecker
-def __build_handler() -> Dict[int, Callable[[ClientWebSocketResponse, WSMessage], Coroutine[None, None, None]]]:
+def __build_handler() -> WebsocketHandler:
     handler = defaultdict(__handle_message_default)
     handler[aiohttp.WSMsgType.TEXT] = __handle_text_message
     handler[aiohttp.WSMsgType.ERROR] = __handle_end_message
