@@ -29,16 +29,22 @@ async def report_status_changes(event_queue: Queue):
                 _LOG.info(f'Got id={access_id}')
 
             while True:
-                type_ = 'ACTIVITY'
-                content = await event_queue.get()  # Determines the speed of looping
-                target = MessageType.BROADCAST.value
-                message = MessageDTO(origin_access_id=access_id, type=type_, content=content, target=target)
+                message = await new_message(access_id, event_queue)
 
                 await websocket.send_str(message.json())
                 msg: WSMessage = await websocket.receive()
 
                 handler_func = handler[msg.type]
                 await handler_func(websocket, msg)
+
+
+async def new_message(access_id: str, event_queue: Queue):
+    """ Creates a new message based on the output of the queue. """
+    type_ = 'ACTIVITY'
+    content = await event_queue.get()  # Determines the speed of looping
+    target = MessageType.BROADCAST.value
+    message = MessageDTO(origin_access_id=access_id, type=type_, content=content, target=target)
+    return message
 
 
 # ===== ===== ===== ======= ===== ===== =====
