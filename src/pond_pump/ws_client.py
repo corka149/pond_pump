@@ -39,6 +39,11 @@ async def report_status_changes(event_queue: Queue):
                 await handler_func(websocket, msg)
 
 
+# ===== ===== ===== ======= ===== ===== =====
+# ===== ===== ===== HANDLER ===== ===== =====
+# ===== ===== ===== ======= ===== ===== =====
+
+
 # noinspection PyTypeChecker
 def __build_handler() -> Dict[int, Callable[[ClientWebSocketResponse, WSMessage], Coroutine[None, None, None]]]:
     handler = defaultdict(__handle_message_default)
