@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 
-from pond_pump import client
+from pond_pump import client, ws_client
 from pond_pump.infrastructure import config
 
 _LOG = logging.getLogger('pond_pump')
@@ -34,7 +34,7 @@ async def report(event_queue: asyncio.Queue):
             exists = await client.check_existence()
 
             if exists:
-                await client.report_status_changes(event_queue)
+                await ws_client.report_status_changes(event_queue)
             else:
                 await client.create_device()
 

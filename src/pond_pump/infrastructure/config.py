@@ -2,6 +2,7 @@
 Config module that tries to fetch the matching config for given profile
  from PROJECT_PATH/config.
  """
+import base64
 import logging
 import os
 from pathlib import Path
@@ -75,3 +76,18 @@ def get_config(name: str):
     msg = f'"{name} not found'
     _LOG.error(msg)
     raise ValueError(msg)
+
+
+def build_device_url() -> str:
+    """ Create url for responsible device """
+    url = get_config('iot_server.address')
+    device_name = get_config('device.name')
+    return url + f'/device/{device_name}'
+
+
+def basic_auth() -> Dict[str, str]:
+    """ Creates the auth header """
+    username = get_config('security.basic.username')
+    passwd = get_config('security.basic.password')
+    b64 = base64.b64encode(bytes(f'{username}:{passwd}', 'ascii'))
+    return {'Authorization': f'Basic {b64.decode("ascii")}'}
