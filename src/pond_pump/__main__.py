@@ -45,13 +45,17 @@ async def report(event_queue: asyncio.Queue):
 
 async def observe_power(event_queue: asyncio.Queue):
     """ Checks the power level """
+    power_detector = config.build_power_detector()
+    ready_delay: int = config.get_config('read_delay')
     while True:
         try:
             # Throttle down
-            await asyncio.sleep(20)
+            await asyncio.sleep(ready_delay)
 
-            await event_queue.put("1")  # TODO read the actual value
-            _LOG.info('Put 1 on queue')
+            is_active = 0.5 < power_detector.value
+            activity = '1' if is_active else '0'
+            await event_queue.put(activity)
+            _LOG.info('Put %s on queue', activity)
             await asyncio.sleep(5)
         except Exception as ex:
             _LOG.exception('Error while observe', exc_info=ex)

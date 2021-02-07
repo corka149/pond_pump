@@ -9,6 +9,8 @@ from pathlib import Path
 from typing import Dict, Any
 
 import yaml
+from gpiozero import InputDevice, Device
+from gpiozero.pins.mock import MockFactory
 
 _config_yaml: Dict[str, Any]
 _LOG = logging.getLogger(__name__)
@@ -91,3 +93,14 @@ def basic_auth() -> Dict[str, str]:
     passwd = get_config('security.basic.password')
     b64 = base64.b64encode(bytes(f'{username}:{passwd}', 'ascii'))
     return {'Authorization': f'Basic {b64.decode("ascii")}'}
+
+
+def build_power_detector() -> InputDevice:
+    """ Creates a device for detecting power activity """
+    is_dev = get_config('dev_mode')
+
+    if is_dev:
+        Device.pin_factory = MockFactory()
+
+    power_pin = get_config('device.power_pin')
+    return InputDevice(power_pin)

@@ -1,4 +1,5 @@
 dev_mode: true
+read_delay: 10
 
 iot_server:
   address: http://localhost:8000
@@ -12,3 +13,4 @@ device:
   name: pond_pump_149
   place: garden
   description: observers pump activities
+  power_pin: 18
