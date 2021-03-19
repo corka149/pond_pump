@@ -3,6 +3,7 @@ import logging
 import os
 
 from pond_pump import client, ws_client
+from pond_pump.client import ExceptionReporter
 from pond_pump.infrastructure import config
 
 _LOG = logging.getLogger('pond_pump')
@@ -25,9 +26,11 @@ async def main():
 
 async def report(event_queue: asyncio.Queue):
     """ Report power status """
+    exc_reporter = ExceptionReporter()
+
     while True:
         # noinspection PyBroadException
-        try:
+        async with exc_reporter:
             # Throttle down
             await asyncio.sleep(20)
 
@@ -38,17 +41,15 @@ async def report(event_queue: asyncio.Queue):
             else:
                 await client.create_device()
 
-        except Exception as ex:
-            _LOG.exception('Error while report', exc_info=ex)
-            await client.send_exception(ex)
-
 
 async def observe_power(event_queue: asyncio.Queue):
     """ Checks the power level """
     power_detector = config.build_power_detector()
     ready_delay: int = config.get_config('read_delay')
+    exc_reporter = ExceptionReporter()
+
     while True:
-        try:
+        async with exc_reporter:
             # Throttle down
             await asyncio.sleep(ready_delay)
 
@@ -57,9 +58,6 @@ async def observe_power(event_queue: asyncio.Queue):
             await event_queue.put(activity)
             _LOG.info('Put %s on queue', activity)
             await asyncio.sleep(5)
-        except Exception as ex:
-            _LOG.exception('Error while observe', exc_info=ex)
-            await client.send_exception(ex)
 
 
 asyncio.get_event_loop().run_until_complete(main())
