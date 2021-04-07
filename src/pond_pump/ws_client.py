@@ -54,7 +54,7 @@ async def new_message(access_id: str, event_queue: Queue):
 # ===== ===== ===== ======= ===== ===== =====
 
 
-@_REG.register(aiohttp.WSMsgType.TEXT)
+@_REG.observe(aiohttp.WSMsgType.TEXT)
 async def __handle_text_message(_websocket: ClientWebSocketResponse, msg: WSMessage) -> None:
     if msg.data == 'ACK':
         _LOG.info('%s: Server acknowledged', datetime.now())
@@ -62,10 +62,10 @@ async def __handle_text_message(_websocket: ClientWebSocketResponse, msg: WSMess
         _LOG.info(msg.data)
 
 
-@_REG.register(aiohttp.WSMsgType.ERROR)
-@_REG.register(aiohttp.WSMsgType.CLOSE)
-@_REG.register(aiohttp.WSMsgType.CLOSED)
-@_REG.register(aiohttp.WSMsgType.CLOSING)
+@_REG.observe(aiohttp.WSMsgType.ERROR)
+@_REG.observe(aiohttp.WSMsgType.CLOSE)
+@_REG.observe(aiohttp.WSMsgType.CLOSED)
+@_REG.observe(aiohttp.WSMsgType.CLOSING)
 async def __handle_end_message(websocket: ClientWebSocketResponse, msg: WSMessage) -> None:
     _LOG.info('Closing websocket because of message type "%s"', msg.type)
     await websocket.close()

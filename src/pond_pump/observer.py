@@ -15,7 +15,7 @@ class ObserverRegistry:
     def __init__(self):
         self._observer_funcs = defaultdict(list)
 
-    def register(self, event: Any) -> Callable[[AsyncCallable], AsyncCallable]:
+    def observe(self, event: Any) -> Callable[[AsyncCallable], AsyncCallable]:
         """ Registers a function as an observer for an event. """
 
         def actual_decorator(func: AsyncCallable):
