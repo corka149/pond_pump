@@ -1,3 +1,4 @@
+""" Main entry point """
 import asyncio
 import logging
 import os
@@ -53,7 +54,7 @@ async def observe_power(event_queue: asyncio.Queue):
             # Throttle down
             await asyncio.sleep(ready_delay)
 
-            is_active = 0.5 < power_detector.value
+            is_active = power_detector.value > 0.5
             activity = '1' if is_active else '0'
             await event_queue.put(activity)
             _LOG.info('Put %s on queue', activity)

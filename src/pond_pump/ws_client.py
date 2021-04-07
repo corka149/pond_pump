@@ -15,7 +15,8 @@ from pond_pump.observer import ObserverRegistry
 _LOG = logging.getLogger(__name__)
 _REG = ObserverRegistry()
 
-WebsocketHandler = Dict[int, Callable[[ClientWebSocketResponse, WSMessage], Coroutine[None, None, None]]]
+WebsocketHandler = Dict[int, Callable[[
+                                          ClientWebSocketResponse, WSMessage], Coroutine[None, None, None]]]
 
 
 async def report_status_changes(event_queue: Queue):
@@ -24,9 +25,9 @@ async def report_status_changes(event_queue: Queue):
 
     async with ClientSession() as session:
         async with session.ws_connect(url, headers=config.basic_auth()) as websocket:
-            msg: dict = await websocket.receive_json()
-            access_id = msg.get('access_id')
-            _LOG.info(f'Got access_id={access_id}')
+            json_msg: dict = await websocket.receive_json()
+            access_id = json_msg.get('access_id')
+            _LOG.info('Got access_id=%s', access_id)
 
             while access_id:
                 message = await new_message(access_id, event_queue)
@@ -55,8 +56,8 @@ async def new_message(access_id: str, event_queue: Queue):
 
 @_REG.register(aiohttp.WSMsgType.TEXT)
 async def __handle_text_message(_websocket: ClientWebSocketResponse, msg: WSMessage) -> None:
-    if 'ACK' == msg.data:
-        _LOG.info(f'{datetime.now()}: Server acknowledged')
+    if msg.data == 'ACK':
+        _LOG.info('%s: Server acknowledged', datetime.now())
     else:
         _LOG.info(msg.data)
 
