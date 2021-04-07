@@ -63,6 +63,9 @@ async def __handle_text_message(_websocket: ClientWebSocketResponse, msg: WSMess
 
 
 @_REG.register(aiohttp.WSMsgType.ERROR)
+@_REG.register(aiohttp.WSMsgType.CLOSE)
+@_REG.register(aiohttp.WSMsgType.CLOSED)
+@_REG.register(aiohttp.WSMsgType.CLOSING)
 async def __handle_end_message(websocket: ClientWebSocketResponse, msg: WSMessage) -> None:
     _LOG.info('Closing websocket because of message type "%s"', msg.type)
     await websocket.close()
