@@ -1,0 +1,17 @@
+# Copy it to /etc/systemd/system
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html
+[Unit]
+Description=Sends a message when the pond pump gets active
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi
+ExecStart=python3 -m pond_pump
+EnvironmentFile=/home/pi/pond_pump.env
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
