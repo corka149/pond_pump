@@ -21,7 +21,7 @@ async def main():
 
     # Observer the pump and reports its activity
     event_queue = asyncio.Queue(maxsize=100)
-    asyncio.get_event_loop().create_task(observe_power(event_queue), name='observe power')
+    asyncio.get_event_loop().create_task(observe_power(event_queue))
     await report(event_queue)
 
 
