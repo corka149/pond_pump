@@ -25,7 +25,7 @@ class ExceptionReporter:
             exception_dto = ExceptionSubmittal(
                 hostname=socket.gethostname(),
                 clazz=str(exc_type),
-                message=exc_val,
+                message=str(exc_val),
                 stacktrace=''.join(stack)
             )
             await send_exception(exception_dto)
