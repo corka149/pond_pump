@@ -2,3 +2,4 @@ pydantic
 PyYAML
 aiohttp
 gpiozero
+RPi.GPIO
