@@ -1,5 +1,6 @@
 """ Websocket and HTTP/S client for iot_server """
 import logging
+import pprint
 import socket
 import traceback
 
@@ -28,6 +29,8 @@ class ExceptionReporter:
                 message=str(exc_val),
                 stacktrace=''.join(stack)
             )
+
+            _LOG.error(pprint.pformat(exception_dto.json()))
             await send_exception(exception_dto)
             # Exception was handled
             return True
