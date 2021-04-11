@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pond_pump',
-    version='1.0.1',
+    version='1.0.2',
     packages=['pond_pump', 'pond_pump.model', 'pond_pump.infrastructure'],
     package_dir={'': 'src'},
     include_package_data=True,  # IMPORTANT for configs in combination with MANIFEST.in

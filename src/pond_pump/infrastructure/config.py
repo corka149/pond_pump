@@ -5,6 +5,7 @@ Config module that tries to fetch the matching config for given profile
 import base64
 import logging
 import os
+import pprint
 from pathlib import Path
 from typing import Dict, Any
 
@@ -75,8 +76,9 @@ def get_config(name: str):
     if val:
         return val
 
-    msg = f'"{name} not found'
+    msg = f'"{name}" not found'
     _LOG.error(msg)
+    _LOG.info('Has configs: %s', pprint.pformat(_CONFIG_YAML))
     raise ValueError(msg)
 
 
