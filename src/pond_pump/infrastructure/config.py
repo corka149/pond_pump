@@ -73,7 +73,7 @@ def get_config(name: str):
         if isinstance(val, dict):
             val = val.get(k, {})
 
-    if val:
+    if val or isinstance(val, bool):
         return val
 
     msg = f'"{name}" not found'
