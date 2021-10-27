@@ -1,1 +1,0 @@
-recursive-include src/pond_pump/configuration *.yaml

@@ -1,7 +1,0 @@
--r requirements.txt
-
-mypy
-pylint
-pytest
-tox
-autopep8
