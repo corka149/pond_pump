@@ -1,5 +1,6 @@
 %{
   "beam_notify": {:hex, :beam_notify, "1.0.0", "5b8dceed76f8ac4acadf4d2915ac85b98c42bb17d7dd58253c7593d2a0deedbd", [:make, :mix], [{:elixir_make, "~> 0.6", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "a80331f6c3596918affa408d91ed634106b7ae71b3fc589432363aca68378362"},
+  "circuits_gpio": {:hex, :circuits_gpio, "1.0.0", "b2a493b1822ec712bfba7068a016930f6db5e31713b9b84ed8bc307c7c323682", [:make, :mix], [{:elixir_make, "~> 0.6", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm", "da64c1d9ba1329cd7ca7e63adcd68d73e2294d6b48eb66c9a1064f3db5c523f3"},
   "circular_buffer": {:hex, :circular_buffer, "0.4.0", "a51ea76bb03c4a38207934264bcc600018ead966728ca80da731458c5f940f8b", [:mix], [], "hexpm", "c604b19f2101982b63264e2ed90c6fb0fe502540b6af83ce95135ac9b6f2d847"},
   "elixir_make": {:hex, :elixir_make, "0.6.3", "bc07d53221216838d79e03a8019d0839786703129599e9619f4ab74c8c096eac", [:mix], [], "hexpm", "f5cbd651c5678bcaabdbb7857658ee106b12509cd976c2c2fca99688e1daf716"},
   "gen_state_machine": {:hex, :gen_state_machine, "3.0.0", "1e57f86a494e5c6b14137ebef26a7eb342b3b0070c7135f2d6768ed3f6b6cdff", [:mix], [], "hexpm", "0a59652574bebceb7309f6b749d2a41b45fdeda8dbb4da0791e355dd19f0ed15"},
