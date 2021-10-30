@@ -17,6 +17,11 @@ defmodule PondPump.PowerCheckTest do
     Circuits.GPIO.write(power_check_gpio, value)
 
     # ===== Assert =====
-    assert Circuits.GPIO.read(notification_check_gpio) == value
+
+    # GPIO needs some time
+    Process.sleep(2000)
+
+    assert Circuits.GPIO.read(notification_check_gpio) == value,
+           "Output was not turned on at the end"
   end
 end

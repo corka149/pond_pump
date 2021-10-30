@@ -2,16 +2,20 @@ defmodule PondPump.PowerCheck do
   use Task, restart: :permanent
 
   def start_link([power_pin, notification_pin]) do
+    Task.start_link(__MODULE__, :run_init, [power_pin, notification_pin])
+  end
+
+  def run_init(power_pin, notification_pin) do
+    IO.puts("Start listing #{power_pin}")
+    IO.puts("Ready to write to #{notification_pin}")
+
     power_gpio = setup_power(power_pin)
     notification_gpio = setup_notification(notification_pin)
 
-    Task.start_link(__MODULE__, :run, [power_gpio, notification_gpio])
+    run(power_gpio, notification_gpio)
   end
 
   def run(power_gpio, notification_gpio) do
-    IO.puts("Start listing #{Circuits.GPIO.pin(power_gpio)}")
-    IO.puts(Circuits.GPIO.read(power_gpio))
-
     receive do
       {:circuits_gpio, _pin, _timestamp, value} ->
         IO.puts("Value changed to #{value}")
@@ -19,6 +23,8 @@ defmodule PondPump.PowerCheck do
         run(power_gpio, notification_gpio)
     end
   end
+
+  # ===== PRIVATE =====
 
   defp setup_power(pin) do
     {:ok, gpio} = Circuits.GPIO.open(pin, :input)
