@@ -1,5 +1,5 @@
 defmodule PondPump.PowerCheck do
-  use Task
+  use Task, restart: :permanent
 
   def start_link(power_pin, notification_pin) do
     power_gpio = setup_power(power_pin)
