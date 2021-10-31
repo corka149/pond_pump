@@ -23,25 +23,29 @@ defmodule PondPump.Application do
 
   # List all child processes to be supervised
   def children(:host) do
-    power_check_args = [
-      Application.get_env(:pond_pump, :power_in_pin),
-      Application.get_env(:pond_pump, :notifcation_pin)
-    ]
-
     [
-      {PondPump.PowerCheck, power_check_args}
+      power_check_task()
     ]
   end
 
   def children(_target) do
     [
-      # Children for all targets except host
-      # Starts a worker by calling: PondPump.Worker.start_link(arg)
-      # {PondPump.Worker, arg},
+      power_check_task()
     ]
   end
 
   def target() do
     Application.get_env(:pond_pump, :target)
+  end
+
+  # ===== PRIVATE =====
+
+  defp power_check_task do
+    power_check_args = [
+      Application.get_env(:pond_pump, :power_in_pin),
+      Application.get_env(:pond_pump, :notifcation_pin)
+    ]
+
+    {PondPump.PowerCheck, power_check_args}
   end
 end
