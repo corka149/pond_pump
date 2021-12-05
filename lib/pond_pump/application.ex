@@ -23,14 +23,12 @@ defmodule PondPump.Application do
 
   # List all child processes to be supervised
   def children(:host) do
-    [
-      power_check_task()
-    ]
+    []
   end
 
   def children(_target) do
     [
-      power_check_task()
+      # power_check_task()
     ]
   end
 
