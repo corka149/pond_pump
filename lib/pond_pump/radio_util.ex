@@ -1,28 +1,39 @@
 defmodule PondPump.RadioUtil do
   @short_delay 0.00045
   @long_delay 0.00090
-  # TODO check if this still necessary
-  # @extended_delay 0.0096
+  @extended_delay 0.0096
 
   @doc """
-  Transmit a binary code via GPIO.
+  Transmit a binary code via GPIO. By default it repeats the code
+  four times.
 
   ## Examples
 
       iex> RadioUtil.transmit([1, 0, 1, 0, 1], 17)
+
+      iex> once = 1
+      iex> RadioUtil.transmit([1, 0, 1, 0, 1], 17, once)
   """
-  @spec transmit(list, non_neg_integer) :: :ok
-  def transmit(code, gpio_pin) when is_list(code) do
+  @spec transmit(list, non_neg_integer, non_neg_integer) :: :ok
+  def transmit(code, gpio_pin, times \\ 4) when is_list(code) do
     {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :output)
 
-    do_transmit(gpio, code)
+    do_rtransmit(gpio, code, times)
 
     Circuits.GPIO.write(gpio, 0)
   end
 
   # ===== ===== PRIVATE ===== =====
 
+  defp do_rtransmit(_gpio, _code, 0), do: :ok
+
+  defp do_rtransmit(gpio, code, times) do
+    do_transmit(gpio, code)
+    do_rtransmit(gpio, code, times - 1)
+  end
+
   defp do_transmit(_, []) do
+    Process.sleep(@extended_delay)
     :ok
   end
 
