@@ -1,7 +1,7 @@
 defmodule PondPump.RadioUtil do
-  @short_delay 0.00045
-  @long_delay 0.00090
-  @extended_delay 0.0096
+  @short_delay 5
+  @long_delay 9
+  @extended_delay 10
 
   @doc """
   Transmit a binary code via GPIO. By default it repeats the code
@@ -16,7 +16,7 @@ defmodule PondPump.RadioUtil do
   """
   @spec transmit(list, non_neg_integer, non_neg_integer) :: :ok
   def transmit(code, gpio_pin, times \\ 4) when is_list(code) do
-    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :output)
+    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :output, initial_value: 0)
 
     do_rtransmit(gpio, code, times)
 
