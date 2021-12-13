@@ -1,7 +1,21 @@
 defmodule PondPump.RadioUtil do
-  @short_delay 5
-  @long_delay 9
-  @extended_delay 10
+  @moduledoc """
+
+  The pattern `11100` will be received through this function
+
+  ## Example
+
+      iex> send = fn _ ->
+      ...> Process.sleep 1
+      ...> Circuits.GPIO.write(gpio, 1)
+      ...> Process.sleep 2
+      ...> Circuits.GPIO.write(gpio, 0)
+      ...> end
+  """
+
+  @short_delay 6
+  @long_delay 10
+  @extended_delay 11
 
   @doc """
   Transmit a binary code via GPIO. By default it repeats the code
@@ -23,7 +37,30 @@ defmodule PondPump.RadioUtil do
     Circuits.GPIO.write(gpio, 0)
   end
 
+  @doc """
+  Await checks incoming raido transmissions for an expected pattern.
+  """
+  @spec await(list, non_neg_integer) :: :ok
+  def await(_code, gpio_pin) do
+    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :input, initial_value: 0)
+
+    do_receive(gpio, 100_000)
+  end
+
   # ===== ===== PRIVATE ===== =====
+
+  def do_receive(_gpio, 0) do
+    :ok
+  end
+
+  def do_receive(gpio, times) do
+    Circuits.GPIO.read(gpio)
+    |> IO.write()
+
+    Process.sleep(1)
+
+    do_receive(gpio, times - 1)
+  end
 
   defp do_rtransmit(_gpio, _code, 0), do: :ok
 
