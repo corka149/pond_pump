@@ -6,20 +6,26 @@ defmodule PondPump.PowerCheck do
   alias PondPump.RadioUtil
 
   def start_link([power_pin, notification_pin]) do
-    Task.start_link(__MODULE__, :run_init, [power_pin, notification_pin])
+    Task.start_link(__MODULE__, :observe, [power_pin, notification_pin])
   end
 
-  def run_init(power_pin, notification_pin) do
+  @doc """
+  Observes a power pin and sends an "active" message via a notificaton pin.
+  """
+  @spec observe(non_neg_integer, non_neg_integer) :: no_return
+  def observe(power_pin, notification_pin) do
     Logger.info("Start listing #{power_pin}")
     Logger.info("Ready to write to #{notification_pin}")
 
     power_gpio = setup_power(power_pin)
     notification_gpio = setup_notification(notification_pin)
 
-    run(power_gpio, notification_gpio)
+    do_observe(power_gpio, notification_gpio)
   end
 
-  def run(power_gpio, notification_gpio) do
+  # ===== PRIVATE =====
+
+  defp do_observe(power_gpio, notification_gpio) do
     receive do
       {:circuits_gpio, _pin, _timestamp, 1} ->
         Logger.info("Power active")
@@ -39,10 +45,8 @@ defmodule PondPump.PowerCheck do
         Logger.warn("Unknown message #{unknown_notification}")
     end
 
-    run(power_gpio, notification_gpio)
+    do_observe(power_gpio, notification_gpio)
   end
-
-  # ===== PRIVATE =====
 
   defp active_code, do: [1, 1, 1, 0, 0]
 
