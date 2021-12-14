@@ -25,6 +25,10 @@ defmodule PondPump.PowerCheck do
 
   # ===== PRIVATE =====
 
+  defp active_code, do: [1, 1, 1, 0, 0]
+
+  defp inactive_code, do: [0, 0, 0, 0, 0]
+
   defp do_observe(power_gpio, notification_gpio) do
     receive do
       {:circuits_gpio, _pin, _timestamp, 1} ->
@@ -47,10 +51,6 @@ defmodule PondPump.PowerCheck do
 
     do_observe(power_gpio, notification_gpio)
   end
-
-  defp active_code, do: [1, 1, 1, 0, 0]
-
-  defp inactive_code, do: [0, 0, 0, 0, 0]
 
   defp setup_power(pin) do
     {:ok, gpio} = Circuits.GPIO.open(pin, :input)
