@@ -1,5 +1,19 @@
 import Config
 
+defp extract_mode! do
+  case System.get_env("POND_PUMP_MODE") do
+    nil -> raise("No enviroment variable POND_PUMP_MODE")
+    "observer" -> :observer
+    "listener" -> :listener
+    _ -> raise("Invalid value for POND_PUMP_MODE - allowed values: observer or listener")
+  end
+end
+
 config :pond_pump,
+  # Observer
+  notifcation_pin: 17,
+  # Listener
+  receive_pin: 27
+  # General
   power_in_pin: 18,
-  notifcation_pin: 17
+  mode: extract_mode!()

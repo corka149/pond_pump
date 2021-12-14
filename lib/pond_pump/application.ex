@@ -27,8 +27,10 @@ defmodule PondPump.Application do
   end
 
   def children(_target) do
+    mode = Application.get_env(:pond_pump, :mode)
+
     [
-      # power_check_task()
+      pond_pump_task(mode)
     ]
   end
 
@@ -38,7 +40,7 @@ defmodule PondPump.Application do
 
   # ===== PRIVATE =====
 
-  defp power_check_task do
+  defp pond_pump_task(:observer) do
     power_check_args = [
       Application.get_env(:pond_pump, :power_in_pin),
       Application.get_env(:pond_pump, :notifcation_pin)
