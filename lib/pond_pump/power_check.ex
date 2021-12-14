@@ -3,6 +3,8 @@ defmodule PondPump.PowerCheck do
 
   require Logger
 
+  alias PondPump.RadioUtil
+
   def start_link([power_pin, notification_pin]) do
     Task.start_link(__MODULE__, :run_init, [power_pin, notification_pin])
   end
@@ -19,17 +21,32 @@ defmodule PondPump.PowerCheck do
 
   def run(power_gpio, notification_gpio) do
     receive do
-      {:circuits_gpio, _pin, _timestamp, value} ->
-        Logger.info("Value changed to #{value}")
-        :ok = Circuits.GPIO.write(notification_gpio, value)
-        run(power_gpio, notification_gpio)
+      {:circuits_gpio, _pin, _timestamp, 1} ->
+        Logger.info("Power active")
+
+        :ok =
+          active_code()
+          |> RadioUtil.transmit(notification_gpio)
+
+      {:circuits_gpio, _pin, _timestamp, 0} ->
+        Logger.info("Power inactive")
+
+        :ok =
+          inactive_code()
+          |> RadioUtil.transmit(notification_gpio)
 
       unknown_notification ->
         Logger.warn("Unknown message #{unknown_notification}")
     end
+
+    run(power_gpio, notification_gpio)
   end
 
   # ===== PRIVATE =====
+
+  defp active_code, do: [1, 1, 1, 0, 0]
+
+  defp inactive_code, do: [0, 0, 0, 0, 0]
 
   defp setup_power(pin) do
     {:ok, gpio} = Circuits.GPIO.open(pin, :input)

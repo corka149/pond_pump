@@ -13,9 +13,8 @@ defmodule PondPump.RadioUtil do
       ...> end
   """
 
-  @short_delay 6
-  @long_delay 10
-  @extended_delay 11
+  @short_delay 1
+  @long_delay 2
 
   @doc """
   Transmit a binary code via GPIO. By default it repeats the code
@@ -23,44 +22,18 @@ defmodule PondPump.RadioUtil do
 
   ## Examples
 
-      iex> RadioUtil.transmit([1, 0, 1, 0, 1], 17)
-
+      iex> {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :output, initial_value: 0)
       iex> once = 1
-      iex> RadioUtil.transmit([1, 0, 1, 0, 1], 17, once)
+      iex> RadioUtil.transmit([1, 1, 1, 0, 0], gpio, once)
+      iex> # Will be received as 11100
   """
-  @spec transmit(list, non_neg_integer, non_neg_integer) :: :ok
-  def transmit(code, gpio_pin, times \\ 4) when is_list(code) do
-    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :output, initial_value: 0)
-
+  @spec transmit(list, reference, non_neg_integer) :: :ok
+  def transmit(code, gpio, times \\ 4) when is_list(code) do
     do_rtransmit(gpio, code, times)
-
     Circuits.GPIO.write(gpio, 0)
   end
 
-  @doc """
-  Await checks incoming raido transmissions for an expected pattern.
-  """
-  @spec await(list, non_neg_integer) :: :ok
-  def await(_code, gpio_pin) do
-    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :input, initial_value: 0)
-
-    do_receive(gpio, 100_000)
-  end
-
   # ===== ===== PRIVATE ===== =====
-
-  def do_receive(_gpio, 0) do
-    :ok
-  end
-
-  def do_receive(gpio, times) do
-    Circuits.GPIO.read(gpio)
-    |> IO.write()
-
-    Process.sleep(1)
-
-    do_receive(gpio, times - 1)
-  end
 
   defp do_rtransmit(_gpio, _code, 0), do: :ok
 
@@ -70,7 +43,6 @@ defmodule PondPump.RadioUtil do
   end
 
   defp do_transmit(_, []) do
-    Process.sleep(@extended_delay)
     :ok
   end
 
@@ -96,5 +68,30 @@ defmodule PondPump.RadioUtil do
 
   defp do_transmit(gpio, [_ | tail]) do
     do_transmit(gpio, tail)
+  end
+
+  # ===== ===== DELETE SOON ===== =====
+
+  @doc """
+  Await checks incoming raido transmissions for an expected pattern.
+  """
+  @spec await(list, non_neg_integer) :: :ok
+  def await(_code, gpio_pin) do
+    {:ok, gpio} = Circuits.GPIO.open(gpio_pin, :input, initial_value: 0)
+
+    do_receive(gpio, 100_000)
+  end
+
+  defp do_receive(_gpio, 0) do
+    :ok
+  end
+
+  defp do_receive(gpio, times) do
+    Circuits.GPIO.read(gpio)
+    |> IO.write()
+
+    Process.sleep(1)
+
+    do_receive(gpio, times - 1)
   end
 end
