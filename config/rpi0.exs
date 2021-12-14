@@ -11,7 +11,7 @@ end
 
 config :pond_pump,
   # Observer
-  notifcation_pin: 17,
+  notification_pin: 17,
   # Listener
   receive_pin: 27
   # General

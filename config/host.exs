@@ -4,4 +4,4 @@ import Config
 
 config :pond_pump,
   power_in_pin: 21,
-  notifcation_pin: 30
+  notification_pin: 30

@@ -9,7 +9,7 @@ Configuration:
 | Name | description | rpi0 value | host value |
 | --- | --- | --- | --- |
 | power_in_pin | Checks for power | 18 | 21 |
-| notifcation_pin | Output pin status of power | 17 | 30 |
+| notification_pin | Output pin status of power | 17 | 30 |
 
 
 ## Targets
