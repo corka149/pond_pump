@@ -28,7 +28,7 @@ defmodule PondPump.RfReceiver do
 
   defp do_await(power_gpio, receive_gpio, queue) do
     if active_code() == :queue.to_list(queue) do
-      IO.puts("<Light on>")
+      Logger.info("<Light on>")
     end
 
     queue = :queue.drop(queue)
@@ -38,7 +38,7 @@ defmodule PondPump.RfReceiver do
   end
 
   defp inspect_no_n(val) do
-    IO.write(val)
+    Logger.info(val)
     val
   end
 
