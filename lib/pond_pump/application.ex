@@ -48,4 +48,13 @@ defmodule PondPump.Application do
 
     {PondPump.PowerCheck, power_check_args}
   end
+
+  defp pond_pump_task(:listener) do
+    power_check_args = [
+      Application.get_env(:pond_pump, :power_in_pin),
+      Application.get_env(:pond_pump, :receive_pin)
+    ]
+
+    {PondPump.RfReceiver, power_check_args}
+  end
 end

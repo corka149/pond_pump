@@ -8,13 +8,16 @@ defmodule PondPump.RfReceiver do
   end
 
   def await(power_pin, receive_pin) do
-    Logger.info("Start listing #{receive_pin}")
-    Logger.info("Will turn on light on #{power_pin}")
-
     power_gpio = setup_power(power_pin)
     receive_gpio = setup_receive(receive_pin)
 
-    do_await(power_gpio, receive_gpio)
+    queue = :queue.new()
+
+    queue =
+      1..5
+      |> Enum.reduce(queue, fn _, acc -> read_to_q(receive_gpio, acc) end)
+
+    do_await(power_gpio, receive_gpio, queue)
   end
 
   # ===== ===== PRIVATE ===== =====
@@ -23,16 +26,35 @@ defmodule PondPump.RfReceiver do
     [1, 1, 1, 0, 0]
   end
 
-  defp do_await(power_gpio, receive_gpio) do
-    do_await(power_gpio, receive_gpio)
+  defp do_await(power_gpio, receive_gpio, queue) do
+    if active_code() == :queue.to_list(queue) do
+      IO.puts("<Light on>")
+    end
+
+    queue = :queue.drop(queue)
+    queue = read_to_q(receive_gpio, queue)
+
+    do_await(power_gpio, receive_gpio, queue)
+  end
+
+  defp inspect_no_n(val) do
+    IO.write(val)
+    val
+  end
+
+  # Read from gpio to queue
+  defp read_to_q(gpio, queue) do
+    gpio |> Circuits.GPIO.read() |> inspect_no_n |> :queue.in(queue)
   end
 
   defp setup_power(pin) do
+    Logger.info("Will turn on light on #{pin}")
     {:ok, gpio} = Circuits.GPIO.open(pin, :output)
     gpio
   end
 
   defp setup_receive(pin) do
+    Logger.info("Start listing on #{pin}")
     {:ok, gpio} = Circuits.GPIO.open(pin, :input, initial_value: 0)
     gpio
   end
