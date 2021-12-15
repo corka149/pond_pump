@@ -29,27 +29,48 @@ defmodule PondPump.PowerCheck do
 
   defp inactive_code, do: [0, 0, 0, 0, 0]
 
-  defp do_observe(power_gpio, notification_gpio) do
-    receive do
-      {:circuits_gpio, _pin, _timestamp, 1} ->
-        Logger.info("Power active")
+  defp do_observe(power_gpio, notification_gpio, last_state \\ :off) do
+    last_state =
+      receive do
+        {:circuits_gpio, _pin, _timestamp, 1} ->
+          Logger.info("Power active")
 
-        :ok =
-          active_code()
-          |> RadioUtil.transmit(notification_gpio)
+          :ok =
+            active_code()
+            |> RadioUtil.transmit(notification_gpio)
 
-      {:circuits_gpio, _pin, _timestamp, 0} ->
-        Logger.info("Power inactive")
+          :on
 
-        :ok =
-          inactive_code()
-          |> RadioUtil.transmit(notification_gpio)
+        {:circuits_gpio, _pin, _timestamp, 0} ->
+          Logger.info("Power inactive")
 
-      unknown_notification ->
-        Logger.warn("Unknown message #{unknown_notification}")
-    end
+          :ok =
+            inactive_code()
+            |> RadioUtil.transmit(notification_gpio)
 
-    do_observe(power_gpio, notification_gpio)
+          :off
+
+        unknown_notification ->
+          Logger.warn("Unknown message #{unknown_notification}")
+          last_state
+      after
+        5000 ->
+          case last_state do
+            :on ->
+              active_code()
+              |> RadioUtil.transmit(notification_gpio)
+
+              :on
+
+            :off ->
+              inactive_code()
+              |> RadioUtil.transmit(notification_gpio)
+
+              :off
+          end
+      end
+
+    do_observe(power_gpio, notification_gpio, last_state)
   end
 
   defp setup_power(pin) do

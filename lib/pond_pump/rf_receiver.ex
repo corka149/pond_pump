@@ -37,16 +37,11 @@ defmodule PondPump.RfReceiver do
     do_await(power_gpio, receive_gpio, queue)
   end
 
-  defp inspect_no_n(val) do
-    Logger.info(val)
-    val
-  end
-
   # Read from gpio to queue
   defp read_to_q(gpio, queue) do
     Process.sleep(1)
 
-    gpio |> Circuits.GPIO.read() |> inspect_no_n |> :queue.in(queue)
+    gpio |> Circuits.GPIO.read() |> :queue.in(queue)
   end
 
   defp setup_power(pin) do
