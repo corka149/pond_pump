@@ -13,7 +13,7 @@ config :pond_pump,
   # Observer
   notification_pin: 17,
   # Listener
-  receive_pin: 27
+  receive_pin: 27,
   # General
   power_in_pin: 18,
   mode: extract_mode!()
