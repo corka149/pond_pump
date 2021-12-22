@@ -35,6 +35,9 @@ defmodule PondPump.RfReceiver do
 
     if upkeep > 0 do
       Logger.info("<Light on>")
+      :ok = Circuits.GPIO.write(power_gpio, 1)
+    else
+      :ok = Circuits.GPIO.write(power_gpio, 0)
     end
 
     queue = :queue.drop(queue)
