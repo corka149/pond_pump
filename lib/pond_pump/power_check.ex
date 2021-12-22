@@ -32,46 +32,56 @@ defmodule PondPump.PowerCheck do
   defp do_observe(power_gpio, notification_gpio, last_state \\ :off) do
     last_state =
       receive do
-        {:circuits_gpio, _pin, _timestamp, 1} ->
-          Logger.info("Power active")
-
-          :ok =
-            active_code()
-            |> RadioUtil.transmit(notification_gpio)
-
-          :on
-
-        {:circuits_gpio, _pin, _timestamp, 0} ->
-          Logger.info("Power inactive")
-
-          :ok =
-            inactive_code()
-            |> RadioUtil.transmit(notification_gpio)
-
-          :off
-
-        unknown_notification ->
-          Logger.warn("Unknown message #{unknown_notification}")
-          last_state
+        notification ->
+          transmit(notification, notification_gpio, last_state)
       after
         5000 ->
-          case last_state do
-            :on ->
-              active_code()
-              |> RadioUtil.transmit(notification_gpio)
-
-              :on
-
-            :off ->
-              inactive_code()
-              |> RadioUtil.transmit(notification_gpio)
-
-              :off
-          end
+          transmit(notification_gpio, last_state)
       end
 
     do_observe(power_gpio, notification_gpio, last_state)
   end
+
+  defp transmit({:circuits_gpio, _pin, _timestamp, 1}, notification_gpio, _last_state) do
+    Logger.info("Power active")
+
+    :ok =
+      active_code()
+      |> RadioUtil.transmit(notification_gpio)
+
+    :on
+  end
+
+  defp transmit({:circuits_gpio, _pin, _timestamp, 0}, notification_gpio, _last_state) do
+    Logger.info("Power inactive")
+
+    :ok =
+      inactive_code()
+      |> RadioUtil.transmit(notification_gpio)
+
+    :off
+  end
+
+  defp transmit(unknown_notification, _notification_gpio, last_state) do
+    Logger.warn("Unknown message #{unknown_notification}")
+    last_state
+  end
+
+  defp transmit(notification_gpio, :on) do
+    active_code()
+    |> RadioUtil.transmit(notification_gpio)
+
+    :on
+  end
+
+  defp transmit(notification_gpio, :off) do
+    inactive_code()
+    |> RadioUtil.transmit(notification_gpio)
+
+    :off
+  end
+
+  # Setup
 
   defp setup_power(pin) do
     {:ok, gpio} = Circuits.GPIO.open(pin, :input)
