@@ -25,9 +25,9 @@ defmodule PondPump.PowerCheck do
 
   # ===== PRIVATE =====
 
-  defp active_code, do: [1, 1, 1, 0, 0]
+  defp active_code, do: [1, 1, 1, 1, 1, 0, 0, 0]
 
-  defp inactive_code, do: [0, 0, 0, 0, 0]
+  defp inactive_code, do: [0, 0, 0, 0, 0, 0, 0, 0]
 
   defp do_observe(power_gpio, notification_gpio, last_state \\ :off) do
     last_state =

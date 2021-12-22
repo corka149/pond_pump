@@ -23,18 +23,24 @@ defmodule PondPump.RfReceiver do
   # ===== ===== PRIVATE ===== =====
 
   defp active_code do
-    [1, 1, 1, 0, 0]
+    [1, 1, 1, 1, 1, 0, 0, 0]
   end
 
-  defp do_await(power_gpio, receive_gpio, queue) do
-    if active_code() == :queue.to_list(queue) do
+  defp do_await(power_gpio, receive_gpio, queue, upkeep \\ 0) do
+    upkeep =
+      case active_code() == :queue.to_list(queue) do
+        true -> 10
+        false -> upkeep - 1
+      end
+
+    if upkeep > 0 do
       Logger.info("<Light on>")
     end
 
     queue = :queue.drop(queue)
     queue = read_to_q(receive_gpio, queue)
 
-    do_await(power_gpio, receive_gpio, queue)
+    do_await(power_gpio, receive_gpio, queue, upkeep)
   end
 
   # Read from gpio to queue
