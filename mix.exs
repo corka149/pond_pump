@@ -56,7 +56,10 @@ defmodule PondPump.MixProject do
       {:nerves_system_x86_64, "~> 1.17", runtime: false, targets: :x86_64},
 
       # GPIO
-      {:circuits_gpio, "~> 1.0"}
+      {:circuits_gpio, "~> 1.0"},
+
+      # Communication
+      {:tortoise311, "~> 0.11.2"}
     ]
   end
 

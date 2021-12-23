@@ -5,6 +5,8 @@ defmodule PondPump.Application do
 
   use Application
 
+  require Logger
+
   @impl true
   def start(_type, _args) do
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -23,7 +25,9 @@ defmodule PondPump.Application do
 
   # List all child processes to be supervised
   def children(:host) do
-    []
+    [
+      mqtt_connection()
+    ]
   end
 
   def children(_target) do
@@ -54,5 +58,18 @@ defmodule PondPump.Application do
     ]
 
     {PondPump.PowerSignal, power_signal_args}
+  end
+
+  defp mqtt_connection() do
+    {
+      Tortoise311.Connection,
+      [
+        client_id: PondPump,
+        server: {Tortoise311.Transport.Tcp, host: 'localhost', port: 1883},
+        handler: {PondPump.MqttHandler, []},
+        user_name: "jarvis_iot",
+        password: "S3cr3t_001"
+      ]
+    }
   end
 end
