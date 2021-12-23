@@ -13,9 +13,8 @@ end
 
 config :pond_pump,
   # Observer
-  notification_pin: 17,
-  # Listener
-  receive_pin: 27,
-  # General
   power_in_pin: 18,
+  # Listener
+  light_pin: 26,
+  # General
   mode: PondPump.BuildHelper.extract_mode!()
