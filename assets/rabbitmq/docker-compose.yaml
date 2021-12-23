@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  mqtt-broker:
+    image: corka149/rabbitmq:latest
+    ports:
+      - 15672:15672
+      # AMQP
+      # - 5672:5672
+      # MQTT
+      - 1883:1883
