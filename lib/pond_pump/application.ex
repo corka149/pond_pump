@@ -26,7 +26,8 @@ defmodule PondPump.Application do
   # List all child processes to be supervised
   def children(:host) do
     [
-      mqtt_connection()
+      mqtt_connection(),
+      pond_pump(:listener)
     ]
   end
 
@@ -34,7 +35,7 @@ defmodule PondPump.Application do
     mode = Application.get_env(:pond_pump, :mode)
 
     [
-      pond_pump_task(mode)
+      pond_pump(mode)
     ]
   end
 
@@ -44,7 +45,7 @@ defmodule PondPump.Application do
 
   # ===== PRIVATE =====
 
-  defp pond_pump_task(:observer) do
+  defp pond_pump(:observer) do
     power_check_args = [
       Application.get_env(:pond_pump, :power_in_pin)
     ]
@@ -52,7 +53,7 @@ defmodule PondPump.Application do
     {PondPump.PowerCheck, power_check_args}
   end
 
-  defp pond_pump_task(:listener) do
+  defp pond_pump(:listener) do
     power_signal_args = [
       Application.get_env(:pond_pump, :light_pin)
     ]
