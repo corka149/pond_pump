@@ -17,4 +17,9 @@ config :pond_pump,
   # Listener
   light_pin: 26,
   # General
-  mode: PondPump.BuildHelper.extract_mode!()
+  mode: PondPump.BuildHelper.extract_mode!(),
+  topic: "pondpump/149",
+  mqtt_host: System.fetch_env!("MQTT_HOST"),
+  mqtt_port: System.fetch_env!("MQTT_PORT"),
+  mqtt_user: System.fetch_env!("MQTT_USER"),
+  mqtt_password: System.fetch_env!("MQTT_PASSWORD")

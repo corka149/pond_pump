@@ -62,14 +62,19 @@ defmodule PondPump.Application do
   end
 
   defp mqtt_connection() do
+    host = Application.get_env(:pond_pump, :mqtt_host)
+    port = Application.get_env(:pond_pump, :mqtt_port)
+    user = Application.get_env(:pond_pump, :mqtt_user)
+    password = Application.get_env(:pond_pump, :mqtt_password)
+
     {
       Tortoise311.Connection,
       [
         client_id: PondPump,
-        server: {Tortoise311.Transport.Tcp, host: 'localhost', port: 1883},
+        server: {Tortoise311.Transport.Tcp, host: host, port: port},
         handler: {PondPump.MqttHandler, []},
-        user_name: "jarvis_iot",
-        password: "S3cr3t_001"
+        user_name: user,
+        password: password
       ]
     }
   end
