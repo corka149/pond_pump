@@ -46,7 +46,7 @@ defmodule PondPump.PowerSignal do
 
   defp setup_power(pin) do
     Logger.info("Will turn on light on #{pin}")
-    {:ok, gpio} = Circuits.GPIO.open(pin, :output)
+    {:ok, gpio} = Circuits.GPIO.open(pin, :output, initial_value: 0)
     gpio
   end
 end
