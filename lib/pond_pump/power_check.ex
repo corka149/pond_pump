@@ -20,7 +20,7 @@ defmodule PondPump.PowerCheck do
     do_observe(power_gpio)
   end
 
-  # ===== PRIVATE =====
+  # ===== ===== PRIVATE ===== =====
 
   defp do_observe(power_gpio, last_state \\ :off) do
     last_state =
@@ -37,12 +37,14 @@ defmodule PondPump.PowerCheck do
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 1}, _last_state) do
     Logger.info("Power active")
+    :ok = Tortoise311.publish(PondPump, pump_topic(), 1)
 
     :on
   end
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 0}, _last_state) do
     Logger.info("Power inactive")
+    :ok = Tortoise311.publish(PondPump, pump_topic(), 0)
 
     :off
   end
@@ -74,5 +76,9 @@ defmodule PondPump.PowerCheck do
     :ok = Circuits.GPIO.set_pull_mode(gpio, :pulldown)
 
     gpio
+  end
+
+  defp pump_topic do
+    Application.get_env(:pond_pump, :topic)
   end
 end
