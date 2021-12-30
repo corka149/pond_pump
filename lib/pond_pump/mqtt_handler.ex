@@ -8,7 +8,7 @@ defmodule PondPump.MqttHandler do
   defstruct []
   alias __MODULE__, as: State
 
-  @topic "pondpump/149"
+  alias PondPump.PowerSignal
 
   def init(_opts) do
     Logger.info("Initializing handler")
@@ -19,8 +19,7 @@ defmodule PondPump.MqttHandler do
     Logger.info("Connection has been established")
 
     next_actions = [
-      {:subscribe, @topic, qos: 0},
-      {:subscribe, @topic, qos: 1}
+      {:subscribe, pump_topic(), qos: 0}
     ]
 
     {:ok, state, next_actions}
@@ -56,9 +55,30 @@ defmodule PondPump.MqttHandler do
     {:ok, state}
   end
 
+  def handle_message(topic, 1, state) do
+    if topic == pump_topic() do
+      Logger.info("Power active")
+      :ok = PowerSignal.turn_on_light()
+    else
+      Logger.warn("Unkown topic #{topic}")
+    end
+
+    {:ok, state}
+  end
+
+  def handle_message(topic, 0, state) do
+    if topic == pump_topic() do
+      Logger.info("Power inactive")
+      :ok = PowerSignal.turn_off_light()
+    else
+      Logger.warn("Unkown topic #{topic}")
+    end
+
+    {:ok, state}
+  end
+
   def handle_message(topic, publish, state) do
-    Logger.info("#{Enum.join(topic, "/")} #{inspect(publish)}")
-    IO.puts("#{Enum.join(topic, "/")} #{inspect(publish)}")
+    Logger.warn("Unkown message #{Enum.join(topic, "/")} #{inspect(publish)}")
 
     {:ok, state}
   end
@@ -66,5 +86,11 @@ defmodule PondPump.MqttHandler do
   def terminate(reason, _state) do
     Logger.warn("Client has been terminated with reason: #{inspect(reason)}")
     :ok
+  end
+
+  # ===== ===== PRIVATE ===== =====
+
+  defp pump_topic do
+    Application.get_env(:pond_pump, :topic)
   end
 end
