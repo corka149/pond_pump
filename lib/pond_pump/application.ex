@@ -27,7 +27,8 @@ defmodule PondPump.Application do
   def children(:host) do
     [
       mqtt_connection(),
-      pond_pump(:listener)
+      pond_pump(:listener),
+      pond_pump(:observer)
     ]
   end
 

@@ -4,7 +4,7 @@ import Config
 
 config :pond_pump,
   # Observer
-  power_in_pin: 18,
+  power_in_pin: 19,
   # Listener
   light_pin: 26,
   # General

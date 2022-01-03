@@ -4,24 +4,24 @@ defmodule PondPump.PowerCheckTest do
   test "incoming power triggers notifcation output" do
     # ===== Arrange =====
     message = "Could not open port. Did you compile dependencies with CIRCUITS_MIX_ENV=test?"
-    assert {:ok, _gpio} = Circuits.GPIO.open(0, :output), message
+    assert %{name: :stub, pins_open: 0} = Circuits.GPIO.info(), message
 
     value = 1
 
-    # Used for stubbing
-    {:ok, power_check_gpio} = Circuits.GPIO.open(20, :output)
-    {:ok, notification_check_gpio} = Circuits.GPIO.open(31, :input)
+    # Used for stubbing (even = out, uneven = input)
+    {:ok, power_out_gpio} = Circuits.GPIO.open(18, :output)
+    {:ok, light_gpio} = Circuits.GPIO.open(27, :input)
 
     # ===== Act =====
     # Trigger power check
-    Circuits.GPIO.write(power_check_gpio, value)
+    Circuits.GPIO.write(power_out_gpio, value)
 
     # ===== Assert =====
 
     # GPIO needs some time
     Process.sleep(2000)
 
-    assert Circuits.GPIO.read(notification_check_gpio) == value,
-           "Output was not turned on at the end"
+    assert Circuits.GPIO.read(light_gpio) == value,
+           "Light was not turned on at the end"
   end
 end
