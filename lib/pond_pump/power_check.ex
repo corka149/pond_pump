@@ -8,12 +8,11 @@ defmodule PondPump.PowerCheck do
   end
 
   @doc """
-  Observes a power pin and sends an "active" message via a notificaton pin.
+  Observes a power pin and sends an "active" message via MQTT.
   """
-  @spec observe(non_neg_integer, non_neg_integer) :: no_return
-  def observe(power_pin, notification_pin) do
+  @spec observe(non_neg_integer) :: no_return
+  def observe(power_pin) do
     Logger.info("Start listing #{power_pin}")
-    Logger.info("Ready to write to #{notification_pin}")
 
     power_gpio = setup_power(power_pin)
 
