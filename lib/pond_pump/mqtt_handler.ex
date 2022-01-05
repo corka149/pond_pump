@@ -10,6 +10,8 @@ defmodule PondPump.MqttHandler do
 
   alias PondPump.PowerSignal
 
+  @pump_topic Application.get_env(:pond_pump, :topic) |> String.split("/")
+
   def init(_opts) do
     Logger.info("Initializing handler")
     {:ok, %State{}}
@@ -55,8 +57,8 @@ defmodule PondPump.MqttHandler do
     {:ok, state}
   end
 
-  def handle_message(topic, 1, state) do
-    if topic == pump_topic() do
+  def handle_message(topic, <<1>>, state) do
+    if topic == @pump_topic do
       Logger.info("Power active")
       :ok = PowerSignal.turn_on_light()
     else
@@ -66,8 +68,8 @@ defmodule PondPump.MqttHandler do
     {:ok, state}
   end
 
-  def handle_message(topic, 0, state) do
-    if topic == pump_topic() do
+  def handle_message(topic, <<0>>, state) do
+    if topic == @pump_topic do
       Logger.info("Power inactive")
       :ok = PowerSignal.turn_off_light()
     else
