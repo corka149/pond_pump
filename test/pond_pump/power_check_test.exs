@@ -4,7 +4,7 @@ defmodule PondPump.PowerCheckTest do
   test "incoming power triggers notifcation output" do
     # ===== Arrange =====
     message = "Could not open port. Did you compile dependencies with CIRCUITS_MIX_ENV=test?"
-    assert %{name: :stub, pins_open: 0} = Circuits.GPIO.info(), message
+    assert %{name: :stub, pins_open: 2} = Circuits.GPIO.info(), message
 
     value = 1
 
