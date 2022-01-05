@@ -63,10 +63,10 @@ defmodule PondPump.Application do
   end
 
   defp mqtt_connection() do
-    host = Application.get_env(:pond_pump, :mqtt_host)
-    port = Application.get_env(:pond_pump, :mqtt_port)
-    user = Application.get_env(:pond_pump, :mqtt_user)
-    password = Application.get_env(:pond_pump, :mqtt_password)
+    host = Application.fetch_env!(:pond_pump, :mqtt_host)
+    port = Application.fetch_env!(:pond_pump, :mqtt_port)
+    user = Application.fetch_env!(:pond_pump, :mqtt_user)
+    password = Application.fetch_env!(:pond_pump, :mqtt_password)
 
     {
       Tortoise311.Connection,
