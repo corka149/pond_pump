@@ -29,7 +29,7 @@ defmodule PondPump.PowerCheck do
         notification ->
           transmit(notification, last_state)
       after
-        5000 ->
+        8_000 ->
           transmit(last_state)
       end
 
@@ -57,11 +57,14 @@ defmodule PondPump.PowerCheck do
 
   defp transmit(:on) do
     Logger.info("#{__MODULE__} - Power still active")
+    :ok = Tortoise311.publish(PondPump, @pump_topic, 1)
+
     :on
   end
 
   defp transmit(:off) do
     Logger.info("#{__MODULE__} - Power still inactive")
+    :ok = Tortoise311.publish(PondPump, @pump_topic, 0)
 
     :off
   end
