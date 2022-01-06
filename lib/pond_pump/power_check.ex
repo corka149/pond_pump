@@ -3,6 +3,8 @@ defmodule PondPump.PowerCheck do
 
   require Logger
 
+  @pump_topic Application.fetch_env!(:pond_pump, :topic)
+
   def start_link([power_pin]) do
     Task.start_link(__MODULE__, :observe, [power_pin])
   end
@@ -12,7 +14,7 @@ defmodule PondPump.PowerCheck do
   """
   @spec observe(non_neg_integer) :: no_return
   def observe(power_pin) do
-    Logger.info("Start listing #{power_pin}")
+    Logger.info("#{__MODULE__} - Start listing #{power_pin}")
 
     power_gpio = setup_power(power_pin)
 
@@ -35,31 +37,31 @@ defmodule PondPump.PowerCheck do
   end
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 1}, _last_state) do
-    Logger.info("Power active")
-    :ok = Tortoise311.publish(PondPump, pump_topic(), 1)
+    Logger.info("#{__MODULE__} - Power active (Notify on #{@pump_topic})")
+    :ok = Tortoise311.publish(PondPump, @pump_topic, 1)
 
     :on
   end
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 0}, _last_state) do
-    Logger.info("Power inactive")
-    :ok = Tortoise311.publish(PondPump, pump_topic(), 0)
+    Logger.info("#{__MODULE__} - Power inactive (Notify on #{@pump_topic})")
+    :ok = Tortoise311.publish(PondPump, @pump_topic, 0)
 
     :off
   end
 
   defp transmit(unknown_notification, last_state) do
-    Logger.warn("Unknown message #{unknown_notification}")
+    Logger.warn("#{__MODULE__} - Unknown message #{unknown_notification}")
     last_state
   end
 
   defp transmit(:on) do
-    Logger.info("Power still active")
+    Logger.info("#{__MODULE__} - Power still active")
     :on
   end
 
   defp transmit(:off) do
-    Logger.info("Power still inactive")
+    Logger.info("#{__MODULE__} - Power still inactive")
 
     :off
   end
@@ -75,9 +77,5 @@ defmodule PondPump.PowerCheck do
     :ok = Circuits.GPIO.set_pull_mode(gpio, :pulldown)
 
     gpio
-  end
-
-  defp pump_topic do
-    Application.get_env(:pond_pump, :topic)
   end
 end
