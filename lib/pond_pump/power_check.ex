@@ -3,7 +3,10 @@ defmodule PondPump.PowerCheck do
 
   require Logger
 
+  alias PondPump.PowerCheck
+
   @pump_topic Application.fetch_env!(:pond_pump, :topic)
+  @max_on_resends 5
 
   @enforce_keys [:last_state, :resends]
   defstruct last_state: :off, resends: 0
@@ -21,55 +24,82 @@ defmodule PondPump.PowerCheck do
 
     power_gpio = setup_power(power_pin)
 
-    do_observe(power_gpio)
+    power_check = new_off_check()
+
+    do_observe(power_gpio, power_check)
   end
 
   # ===== ===== PRIVATE ===== =====
 
-  defp do_observe(power_gpio, last_state \\ :off) do
+  defp new_off_check do
+    %PowerCheck{last_state: :off, resends: 0}
+  end
+
+  defp new_on_check do
+    %PowerCheck{last_state: :on, resends: @max_on_resends}
+  end
+
+  defp do_observe(power_gpio, power_check) do
     last_state =
       receive do
         notification ->
-          transmit(notification, last_state)
+          transmit(notification, power_check)
       after
         8_000 ->
-          transmit(last_state)
+          re_transmit(power_check)
       end
 
     do_observe(power_gpio, last_state)
   end
 
+  # ===== TRANSMIT =====
+
+  # Got interrupt with value ON = 1
   defp transmit({:circuits_gpio, _pin, _timestamp, 1}, _last_state) do
     Logger.info("#{__MODULE__} - Power active (Notify on #{@pump_topic})")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
-    :on
+    new_on_check()
   end
 
+  # Got interrupt with value OFF = 0
   defp transmit({:circuits_gpio, _pin, _timestamp, 0}, _last_state) do
     Logger.info("#{__MODULE__} - Power inactive (Notify on #{@pump_topic})")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
 
-    :off
+    new_off_check()
   end
 
+  # Unknown
   defp transmit(unknown_notification, last_state) do
     Logger.warn("#{__MODULE__} - Unknown message #{unknown_notification}")
     last_state
   end
 
-  defp transmit(:on) do
+  # ===== RE TRANSMIT =====
+
+  # Resent :on state until max resend limit
+  defp re_transmit(%PowerCheck{last_state: :on, resends: 0}) do
     Logger.info("#{__MODULE__} - Power still active")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
-    :on
+    new_off_check()
   end
 
-  defp transmit(:off) do
+  # Resend :on state because limit was not reached
+  defp re_transmit(%PowerCheck{last_state: :on, resends: resends} = power_check) do
+    Logger.info("#{__MODULE__} - Power still active")
+    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
+
+    %{power_check | resends: resends - 1}
+  end
+
+  # Resend :off state
+  defp re_transmit(%PowerCheck{last_state: :off, resends: _} = power_check) do
     Logger.info("#{__MODULE__} - Power still inactive")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
 
-    :off
+    power_check
   end
 
   # Setup
