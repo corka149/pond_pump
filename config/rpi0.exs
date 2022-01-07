@@ -22,7 +22,8 @@ config :pond_pump,
   mqtt_host: System.fetch_env!("MQTT_HOST"),
   mqtt_port: System.fetch_env!("MQTT_PORT"),
   mqtt_user: System.fetch_env!("MQTT_USER"),
-  mqtt_password: System.fetch_env!("MQTT_PASSWORD")
+  mqtt_password: System.fetch_env!("MQTT_PASSWORD"),
+  enable_wifi_wizard: true
 
 # Use Ringlogger as the logger backend and remove :console.
 # See https://hexdocs.pm/ring_logger/readme.html for more information on

@@ -9,6 +9,10 @@ defmodule PondPump.Application do
 
   @impl true
   def start(_type, _args) do
+    if should_start_wizward?() do
+      VintageNetWizard.run_wizard()
+    end
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: PondPump.Supervisor]
@@ -45,6 +49,10 @@ defmodule PondPump.Application do
   end
 
   # ===== PRIVATE =====
+
+  defp should_start_wizward? do
+    Application.get_env(:pond_pump, :enable_wifi_wizard, false)
+  end
 
   defp pond_pump(:observer) do
     power_check_args = [
