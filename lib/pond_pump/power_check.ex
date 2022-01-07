@@ -8,7 +8,7 @@ defmodule PondPump.PowerCheck do
   @pump_topic Application.fetch_env!(:pond_pump, :topic)
   @max_on_resends 5
 
-  @enforce_keys [:last_state, :resends]
+  @enforce_keys [:last_state]
   defstruct last_state: :off, resends: 0
 
   def start_link([power_pin]) do
@@ -32,7 +32,7 @@ defmodule PondPump.PowerCheck do
   # ===== ===== PRIVATE ===== =====
 
   defp new_off_check do
-    %PowerCheck{last_state: :off, resends: 0}
+    %PowerCheck{last_state: :off}
   end
 
   defp new_on_check do
@@ -80,7 +80,7 @@ defmodule PondPump.PowerCheck do
 
   # Resent :on state until max resend limit
   defp re_transmit(%PowerCheck{last_state: :on, resends: 0}) do
-    Logger.info("#{__MODULE__} - Power still active")
+    Logger.info("#{__MODULE__} - Power still active - reached maximum resend limit")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
     new_off_check()
