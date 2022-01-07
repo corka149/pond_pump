@@ -6,7 +6,9 @@ defmodule PondPump.PowerCheck do
   alias PondPump.PowerCheck
 
   @pump_topic Application.fetch_env!(:pond_pump, :topic)
-  @max_on_resends 5
+
+  @max_timeout 6_000
+  @max_on_resends 50
 
   @enforce_keys [:last_state]
   defstruct last_state: :off, resends: 0
@@ -45,7 +47,7 @@ defmodule PondPump.PowerCheck do
         notification ->
           transmit(notification, power_check)
       after
-        8_000 ->
+        @max_timeout ->
           re_transmit(power_check)
       end
 
@@ -88,7 +90,7 @@ defmodule PondPump.PowerCheck do
 
   # Resend :on state because limit was not reached
   defp re_transmit(%PowerCheck{last_state: :on, resends: resends} = power_check) do
-    Logger.info("#{__MODULE__} - Power still active")
+    Logger.info("#{__MODULE__} - Power still active (remaining resends #{resends - 1})")
     :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
     %{power_check | resends: resends - 1}
