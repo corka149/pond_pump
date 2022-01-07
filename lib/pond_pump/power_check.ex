@@ -5,6 +5,9 @@ defmodule PondPump.PowerCheck do
 
   @pump_topic Application.fetch_env!(:pond_pump, :topic)
 
+  @enforce_keys [:last_state, :resends]
+  defstruct last_state: :off, resends: 0
+
   def start_link([power_pin]) do
     Task.start_link(__MODULE__, :observe, [power_pin])
   end
@@ -38,14 +41,14 @@ defmodule PondPump.PowerCheck do
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 1}, _last_state) do
     Logger.info("#{__MODULE__} - Power active (Notify on #{@pump_topic})")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, 1)
+    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
     :on
   end
 
   defp transmit({:circuits_gpio, _pin, _timestamp, 0}, _last_state) do
     Logger.info("#{__MODULE__} - Power inactive (Notify on #{@pump_topic})")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, 0)
+    :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
 
     :off
   end
@@ -57,14 +60,14 @@ defmodule PondPump.PowerCheck do
 
   defp transmit(:on) do
     Logger.info("#{__MODULE__} - Power still active")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, 1)
+    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
 
     :on
   end
 
   defp transmit(:off) do
     Logger.info("#{__MODULE__} - Power still inactive")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, 0)
+    :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
 
     :off
   end
