@@ -20,7 +20,7 @@ config :pond_pump,
   mode: PondPump.BuildHelper.extract_mode!(),
   topic: "pondpump/149",
   mqtt_host: System.fetch_env!("MQTT_HOST"),
-  mqtt_port: System.fetch_env!("MQTT_PORT"),
+  mqtt_port: System.fetch_env!("MQTT_PORT") |> String.to_integer(),
   mqtt_user: System.fetch_env!("MQTT_USER"),
   mqtt_password: System.fetch_env!("MQTT_PASSWORD"),
   enable_wifi_wizard: true
