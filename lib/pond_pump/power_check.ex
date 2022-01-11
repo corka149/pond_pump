@@ -59,7 +59,7 @@ defmodule PondPump.PowerCheck do
   # Got interrupt with value ON = 1
   defp transmit({:circuits_gpio, _pin, _timestamp, 1}, _last_state) do
     Logger.info("#{__MODULE__} - Power active (Notify on #{@pump_topic})")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
+    publish(<<1>>)
 
     new_on_check()
   end
@@ -67,7 +67,7 @@ defmodule PondPump.PowerCheck do
   # Got interrupt with value OFF = 0
   defp transmit({:circuits_gpio, _pin, _timestamp, 0}, _last_state) do
     Logger.info("#{__MODULE__} - Power inactive (Notify on #{@pump_topic})")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
+    publish(<<0>>)
 
     new_off_check()
   end
@@ -83,7 +83,7 @@ defmodule PondPump.PowerCheck do
   # Resent :on state until max resend limit
   defp re_transmit(%PowerCheck{last_state: :on, resends: 0}) do
     Logger.info("#{__MODULE__} - Power still active - reached maximum resend limit")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
+    publish(<<1>>)
 
     new_off_check()
   end
@@ -91,7 +91,7 @@ defmodule PondPump.PowerCheck do
   # Resend :on state because limit was not reached
   defp re_transmit(%PowerCheck{last_state: :on, resends: resends} = power_check) do
     Logger.info("#{__MODULE__} - Power still active (remaining resends #{resends - 1})")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, <<1>>)
+    publish(<<1>>)
 
     %{power_check | resends: resends - 1}
   end
@@ -99,9 +99,16 @@ defmodule PondPump.PowerCheck do
   # Resend :off state
   defp re_transmit(%PowerCheck{last_state: :off, resends: _} = power_check) do
     Logger.info("#{__MODULE__} - Power still inactive")
-    :ok = Tortoise311.publish(PondPump, @pump_topic, <<0>>)
+    publish(<<0>>)
 
     power_check
+  end
+
+  defp publish(val) do
+    case Tortoise311.publish(PondPump, @pump_topic, val) do
+      :ok -> Logger.debug("#{__MODULE__} - Successful submitted value: #{val}")
+      {:error, :unknown_connection} -> Logger.warn("#{__MODULE__} - Unknown conncection")
+    end
   end
 
   # Setup
