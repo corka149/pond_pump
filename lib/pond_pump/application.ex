@@ -82,6 +82,7 @@ defmodule PondPump.Application do
       [
         client_id: client_id,
         server: {Tortoise311.Transport.Tcp, host: host, port: port},
+        handler: {Tortoise311.Handler.Logger, []},
         user_name: user,
         password: password
       ]
