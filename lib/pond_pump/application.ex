@@ -79,12 +79,18 @@ defmodule PondPump.Application do
     {
       Tortoise311.Connection,
       [
-        client_id: PondPump,
+        client_id: client_id(),
         server: {Tortoise311.Transport.Tcp, host: host, port: port},
         handler: {PondPump.MqttHandler, []},
         user_name: user,
         password: password
       ]
     }
+  end
+
+  defp client_id do
+    {:ok, hostname} = :inet.gethostname()
+    time = System.os_time()
+    "#{hostname}-#{time}"
   end
 end
