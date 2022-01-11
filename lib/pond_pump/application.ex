@@ -30,7 +30,7 @@ defmodule PondPump.Application do
   # List all child processes to be supervised
   def children(:host) do
     [
-      mqtt_connection(),
+      mqtt_connection(client_id()),
       pond_pump(:listener),
       pond_pump(:observer)
     ]
@@ -70,7 +70,7 @@ defmodule PondPump.Application do
     {PondPump.PowerSignal, power_signal_args}
   end
 
-  defp mqtt_connection() do
+  defp mqtt_connection(client_id) do
     host = Application.fetch_env!(:pond_pump, :mqtt_host)
     port = Application.fetch_env!(:pond_pump, :mqtt_port)
     user = Application.fetch_env!(:pond_pump, :mqtt_user)
@@ -79,7 +79,7 @@ defmodule PondPump.Application do
     {
       Tortoise311.Connection,
       [
-        client_id: client_id(),
+        client_id: client_id,
         server: {Tortoise311.Transport.Tcp, host: host, port: port},
         handler: {PondPump.MqttHandler, []},
         user_name: user,
@@ -91,6 +91,11 @@ defmodule PondPump.Application do
   defp client_id do
     {:ok, hostname} = :inet.gethostname()
     time = System.os_time()
-    "#{hostname}-#{time}"
+    id = "#{hostname}-#{time}"
+
+    # Make it available to other Processes
+    Application.put_env(:pond_pump, :client_id, id)
+
+    id
   end
 end

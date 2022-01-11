@@ -105,7 +105,9 @@ defmodule PondPump.PowerCheck do
   end
 
   defp publish(val) do
-    case Tortoise311.publish(PondPump, @pump_topic, val) do
+    client_id = Application.get_env(:pond_pump, :client_id)
+
+    case Tortoise311.publish(client_id, @pump_topic, val) do
       :ok -> Logger.debug("#{__MODULE__} - Successful submitted value: #{val}")
       {:error, :unknown_connection} -> Logger.warn("#{__MODULE__} - Unknown conncection")
     end
